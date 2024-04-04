@@ -8,9 +8,7 @@ export default function About() {
     return (
         <Box component="main" sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}>
                 <Toolbar />
-                <div>
-                  <img src="src/assets/my-photo.jpg" alt="" />
-                </div>
+                <img style={{width: '200px', borderRadius: '20px'}} src="src/assets/my-photo.jpg" alt="" />
                 <Typography paragraph>
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
                 tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non

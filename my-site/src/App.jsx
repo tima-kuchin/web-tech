@@ -14,8 +14,6 @@ import Footer from './components/Footer';
 
 import StateAndEffect from './components/labs/StateAndEffect';
 import ReduxCounter from './components/labs/ReduxCounter/ReduxCounter';
-import store from './components/labs/ReduxCounter/store';
-import { Provider } from 'react-redux';
 
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -34,7 +32,7 @@ function App() {
               <Route path='/' element={<Main />} />
               <Route path='/about' element={<About />} />  
               <Route path='/StateAndEffect' element={<StateAndEffect />} />
-              <Route path='/ReduxCounter' element={<Provider store={store}><ReduxCounter/></Provider>} />  
+              <Route path='/ReduxCounter' element={<ReduxCounter/>} />  
             </Routes>
             <Footer />
             </Box>
