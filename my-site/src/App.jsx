@@ -14,6 +14,7 @@ import Footer from './components/Footer';
 
 import StateAndEffect from './components/labs/StateAndEffect';
 import ReduxCounter from './components/labs/ReduxCounter/ReduxCounter';
+import FeedbackForm from './components/labs/FormFormik/FormFormik'
 
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -32,7 +33,8 @@ function App() {
               <Route path='/' element={<Main />} />
               <Route path='/about' element={<About />} />  
               <Route path='/StateAndEffect' element={<StateAndEffect />} />
-              <Route path='/ReduxCounter' element={<ReduxCounter/>} />  
+              <Route path='/ReduxCounter' element={<ReduxCounter/>} /> 
+              <Route path='/Formik' element={<FeedbackForm/>} />   
             </Routes>
             <Footer />
             </Box>

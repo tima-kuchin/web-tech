@@ -28,7 +28,7 @@ function SideMenu() {
             <Toolbar />
             <Divider />
             <List>
-                {['StateAndEffect', 'ReduxCounter', 'Лабараторная 3'].map((text, index) => (
+                {['StateAndEffect', 'ReduxCounter', 'Formik'].map((text, index) => (
                 <ListItem key={text} disablePadding>
                     <ListItemButton component={Link} to={ '/' + text}>
                         <ListItemText primary={text} />
