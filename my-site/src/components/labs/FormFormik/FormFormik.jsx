@@ -28,8 +28,9 @@ const validationSchema = yup.object({
 function FeedbackForm() {
 
   const handleSubmit = useCallback((values) => {
-    alert(JSON.stringify(values, null, 2));
-  }, []);
+    console.log(JSON.stringify(values, null, 2));
+    // Далее будет код построения запроса к серверу и отправка данных формы.
+  }, [/*тут "по хорошему" нужно указать зависимости*/]);
 
   const formik = useFormik({
     initialValues: {
