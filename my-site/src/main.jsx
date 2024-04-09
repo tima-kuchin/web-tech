@@ -19,5 +19,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </Provider>
       </BrowserRouter>
     </CustomThemeProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );
