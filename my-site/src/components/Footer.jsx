@@ -3,34 +3,30 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 
-function Copyright() {
-    return (
-      <Typography variant="body2" color="text.secondary" align="center">
-        {'Copyright © '}
-        <Link color="inherit" href="/">
-          Timur Kuchin
-        </Link>{' '}
-        {new Date().getFullYear()}
-        {'.'}
-      </Typography>
-    );
-  }
+import { Link as RouterLink } from 'react-router-dom';
 
-export default function Footer() {
+function Footer() {
   return (
     <Box component="footer" sx={{ bgcolor: 'background.paper', py: 4 }}>
-        <Typography variant="h6" align="center" gutterBottom>
-          {''}
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          align="center"
-          color="text.secondary"
-          component="p"
-        >
-          {''}
-        </Typography>
-        <Copyright />
+      <Copyright />
     </Box>
   );
 }
+
+function Copyright() {
+  return (
+    <Typography variant="body2" color="text.secondary" align="center">
+      {'@Copyright by '}
+      <Link color="inherit" component={RouterLink} to="/About">
+        Timur Kuchin
+      </Link>{' '}
+      {new Date().getFullYear()}
+      {' '}|{' '} 
+      <Link component={RouterLink} color="inherit" to="/Formik">
+          Связаться со мной
+      </Link>
+    </Typography>
+  );
+}
+
+export default Footer;

@@ -3,7 +3,7 @@ import SvgIcon from '@mui/material/SvgIcon';
 
 export default function AppIcon() {
     return (
-      <SvgIcon sx={{ fontSize: 60, marginRight: 2 }}>
+      <SvgIcon sx={{ fontSize: 60, mx: 4 }}>
         <svg 
             xmlns="http://www.w3.org/2000/svg" 
             viewBox="0 0 109 46"
