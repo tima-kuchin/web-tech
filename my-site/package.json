@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm-run-all --parallel start-vite start-node",
+    "start-vite": "vite",
+    "start-node": "node src/server/server.cjs",
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -19,6 +21,8 @@
     "@mui/x-date-pickers": "^7.2.0",
     "@reduxjs/toolkit": "^2.2.3",
     "@tanstack/react-query": "^5.29.2",
+    "@tanstack/react-table": "^8.16.0",
+    "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
     "csv-writer": "^1.6.0",
     "express": "^4.19.2",
@@ -42,6 +46,7 @@
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "npm-run-all": "^4.1.5",
     "vite": "^5.2.0"
   }
 }

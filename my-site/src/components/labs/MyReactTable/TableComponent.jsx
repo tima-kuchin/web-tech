@@ -1,344 +1,253 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  MRT_EditActionButtons,
   MaterialReactTable,
-  // createRow,
-  useMaterialReactTable,
-} from 'material-react-table';
-import {
-  Box,
-  Button,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  IconButton,
-  Tooltip,
-} from '@mui/material';
-import {
-  QueryClient,
-  QueryClientProvider,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
-import { fakeData, usStates } from './makeData';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+  useMaterialReactTable
+} from 'material-react-table'; 
+import Toolbar from '@mui/material/Toolbar';
+import { Box, Button, TextField } from '@mui/material';
+
 
 const TableComponent = () => {
-  const [validationErrors, setValidationErrors] = useState({});
+
+  function isMobileDevice() {
+    const mediaQuery = window.matchMedia('(max-width: 768px)');
+    return mediaQuery.matches;
+  } 
 
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'id',
-        header: 'Id',
-        enableEditing: false,
-        size: 80,
-      },
+        accessorKey: 'id', 
+        header: '#',
+        enablePinning: false,
+        enableColumnOrdering: false,
+        size: 100,
+      }, 
       {
-        accessorKey: 'firstName',
-        header: 'First Name',
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors?.firstName,
-          helperText: validationErrors?.firstName,
-          //remove any previous validation errors when user focuses on the input
-          onFocus: () =>
-            setValidationErrors({
-              ...validationErrors,
-              firstName: undefined,
-            }),
-          //optionally add validation checking for onBlur or onChange
-        },
-      },
-      {
-        accessorKey: 'lastName',
-        header: 'Last Name',
-        muiEditTextFieldProps: {
-          required: true,
-          error: !!validationErrors?.lastName,
-          helperText: validationErrors?.lastName,
-          //remove any previous validation errors when user focuses on the input
-          onFocus: () =>
-            setValidationErrors({
-              ...validationErrors,
-              lastName: undefined,
-            }),
-        },
-      },
+        accessorKey: 'name', 
+        header: 'Имя',
+        enablePinning: false,
+        enableColumnOrdering: false,
+        size: 100,
+      }, 
       {
         accessorKey: 'email',
         header: 'Email',
-        muiEditTextFieldProps: {
-          type: 'email',
-          required: true,
-          error: !!validationErrors?.email,
-          helperText: validationErrors?.email,
-          //remove any previous validation errors when user focuses on the input
-          onFocus: () =>
-            setValidationErrors({
-              ...validationErrors,
-              email: undefined,
-            }),
-        },
+        enablePinning: false,
+        size: 100,
       },
       {
-        accessorKey: 'state',
-        header: 'State',
-        editVariant: 'select',
-        editSelectOptions: usStates,
-        muiEditTextFieldProps: {
-          select: true,
-          error: !!validationErrors?.state,
-          helperText: validationErrors?.state,
-        },
+        accessorKey: 'message',
+        header: 'Сообщение',
+        enablePinning: false,
+        size: 400,
       },
     ],
-    [validationErrors],
+    [],
   );
 
-  //call CREATE hook
-  const { mutateAsync: createUser, isPending: isCreatingUser } =
-    useCreateUser();
-  //call READ hook
-  const {
-    data: fetchedUsers = [],
-    isError: isLoadingUsersError,
-    isFetching: isFetchingUsers,
-    isLoading: isLoadingUsers,
-  } = useGetUsers();
-  //call UPDATE hook
-  const { mutateAsync: updateUser, isPending: isUpdatingUser } =
-    useUpdateUser();
-  //call DELETE hook
-  const { mutateAsync: deleteUser, isPending: isDeletingUser } =
-    useDeleteUser();
+  const [reloadData, setReloadData] = useState(true);
 
-  //CREATE action
-  const handleCreateUser = async ({ values, table }) => {
-    const newValidationErrors = validateUser(values);
-    if (Object.values(newValidationErrors).some((error) => error)) {
-      setValidationErrors(newValidationErrors);
-      return;
-    }
-    setValidationErrors({});
-    await createUser(values);
-    table.setCreatingRow(null); //exit creating mode
-  };
+  const rowVirtualizerInstanceRef = useRef(null);
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [sorting, setSorting] = useState([]);
 
-  //UPDATE action
-  const handleSaveUser = async ({ values, table }) => {
-    const newValidationErrors = validateUser(values);
-    if (Object.values(newValidationErrors).some((error) => error)) {
-      setValidationErrors(newValidationErrors);
-      return;
-    }
-    setValidationErrors({});
-    await updateUser(values);
-    table.setEditingRow(null); //exit editing mode
-  };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/tableData.json');
+        const jsonData = await response.json();
 
-  //DELETE action
-  const openDeleteConfirmModal = (row) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      deleteUser(row.original.id);
+         const dataWithIds = jsonData.map((item, index) => ({
+        ...item,
+        id: index + 1,
+      }));
+        setData(dataWithIds);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+      }
+    };
+  
+    if (reloadData) {
+      fetchData();
+      setReloadData(false); 
     }
-  };
+  }, [reloadData]); 
+
+  useEffect(() => {
+    try {
+      rowVirtualizerInstanceRef.current?.scrollToIndex?.(0);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [sorting]);
 
   const table = useMaterialReactTable({
     columns,
-    data: fetchedUsers,
-    createDisplayMode: 'modal', //default ('row', and 'custom' are also available)
-    editDisplayMode: 'modal', //default ('row', 'cell', 'table', and 'custom' are also available)
-    enableEditing: true,
-    getRowId: (row) => row.id,
-    muiToolbarAlertBannerProps: isLoadingUsersError
-      ? {
-          color: 'error',
-          children: 'Error loading data',
-        }
-      : undefined,
-    muiTableContainerProps: {
-      sx: {
-        minHeight: '500px',
-      },
-    },
-    onCreatingRowCancel: () => setValidationErrors({}),
-    onCreatingRowSave: handleCreateUser,
-    onEditingRowCancel: () => setValidationErrors({}),
-    onEditingRowSave: handleSaveUser,
-    //optionally customize modal content
-    renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
-      <>
-        <DialogTitle variant="h3">Create New User</DialogTitle>
-        <DialogContent
-          sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
-        >
-          {internalEditComponents} {/* or render custom edit components here */}
-        </DialogContent>
-        <DialogActions>
-          <MRT_EditActionButtons variant="text" table={table} row={row} />
-        </DialogActions>
-      </>
-    ),
-    //optionally customize modal content
-    renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
-      <>
-        <DialogTitle variant="h3">Edit User</DialogTitle>
-        <DialogContent
-          sx={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
-        >
-          {internalEditComponents} {/* or render custom edit components here */}
-        </DialogContent>
-        <DialogActions>
-          <MRT_EditActionButtons variant="text" table={table} row={row} />
-        </DialogActions>
-      </>
-    ),
-    renderRowActions: ({ row, table }) => (
-      <Box sx={{ display: 'flex', gap: '1rem' }}>
-        <Tooltip title="Edit">
-          <IconButton onClick={() => table.setEditingRow(row)}>
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Delete">
-          <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    ),
+    data,
+    enableSorting: true,
+    enableStickyHeader: true,
+    enableColumnPinning: true,
+    initialState: isMobileDevice() ? { columnPinning: { left: ['name'] } } : {},
+    enableColumnOrdering: true,
+    isMultiSortEvent: () => true,
+    maxMultiSortColCount: 3, 
     renderTopToolbarCustomActions: ({ table }) => (
-      <Button
-        variant="contained"
-        onClick={() => {
-          table.setCreatingRow(true); //simplest way to open the create row modal with no default values
-          //or you can pass in a row object to set default values with the `createRow` helper function
-          // table.setCreatingRow(
-          //   createRow(table, {
-          //     //optionally pass in default values for the new row, useful for nested data or other complex scenarios
-          //   }),
-          // );
-        }}
-      >
-        Create New User
-      </Button>
+      <Button onClick={() => table.resetSorting(true)}>
+        Очистить сортировку
+      </Button >
     ),
-    state: {
-      isLoading: isLoadingUsers,
-      isSaving: isCreatingUser || isUpdatingUser || isDeletingUser,
-      showAlertBanner: isLoadingUsersError,
-      showProgressBars: isFetchingUsers,
-    },
+    enableBottomToolbar: false,
+    enableGlobalFilterModes: true,
+    enablePagination: false,
+    enableRowVirtualization: true,
+    muiTableContainerProps: { sx: { maxHeight: '400px' } },
+    onSortingChange: setSorting,
+    state: { isLoading, sorting },
+    rowVirtualizerInstanceRef, 
+    rowVirtualizerOptions: { overscan: 5 },
   });
 
-  return <MaterialReactTable table={table} />;
+  const [tableKey, setTableKey] = useState(0);
+
+  const [deleteFormTrue, setDeleteFormTrue] = useState(false);
+  const [editFormTrue, setEditFormTrue] = useState(false);
+
+  const [recordIndexToDelete, setRecordIndexToDelete] = useState('');
+  const [editRecordIndex, setEditRecordIndex] = useState('');
+
+  const [editFormData, setEditFormData] = useState({});
+
+  const handleDeleteButtonClick = () => {
+    setEditFormTrue(false);
+    setDeleteFormTrue(true);
+  };
+
+  const handleEditButtonClick = () => {
+    setDeleteFormTrue(false);
+    setEditFormTrue(true);
+  };
+  
+  const handleUpdateRecord = (index, newData, setIndex, setEdit, prevKey, setKey, reload) => {
+    return fetch(`http://localhost:5000/api/updateRecord/${index - 1}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Ошибка обновления записи');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Запись успешно обновлена:', data);
+        setEdit({});
+        setIndex('');
+        setKey(prevKey + 1);
+        reload(true);
+        alert('Обновление успешно');
+        return data;
+      })
+      .catch((error) => {
+        console.error('Ошибка обновления записи:', error);
+        throw error;
+      });
+  };
+
+  const handleDeleteRecord = (recordIndexToDelete, setRecordIndexToDelete, prevKey, setKey, reload) => {
+    fetch(`http://localhost:5000/api/deleteRecord/${recordIndexToDelete - 1}`, {
+      method: 'DELETE',
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Ошибка удаления записи');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log('Запись успешно удалена:', data);
+      setRecordIndexToDelete('');
+      setKey(prevKey + 1);
+      reload(true);
+      alert('Удаление успешно');
+      return data;
+    })
+    .catch((error) => {
+      console.error('Ошибка удаления записи:', error);
+    });
+  };
+
+  return(
+    <Box>
+      <Toolbar />
+      <MaterialReactTable key={tableKey} table={table} />
+      <Button variant="contained" sx={{ m: 2 }} onClick={handleEditButtonClick}>
+        Редактировать запись по номеру
+      </Button> 
+      <Button variant="contained" sx={{ m: 2 }} onClick={handleDeleteButtonClick}>
+        Удалить запись по номеру
+      </Button>
+
+      { deleteFormTrue && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', mx: 2, maxWidth: 200}}>
+          <TextField
+            label="Номер записи"
+            type="number"
+            value={recordIndexToDelete}
+            onChange={(e) => setRecordIndexToDelete(parseInt(e.target.value))}
+            sx={{ mb: 2 }}
+          />
+          <Button
+            variant="contained"
+            onClick={() => handleDeleteRecord(recordIndexToDelete, setRecordIndexToDelete, tableKey, setTableKey, setReloadData)}
+          >
+            Удалить
+          </Button>
+        </Box>
+      )}
+
+      { editFormTrue && (
+        <Box sx={{ display: 'flex', flexDirection: 'column', mx: 2, maxWidth: 1200 }}>
+            <TextField
+              label="Номер записи для редактирования"
+              type="number"
+              value={editRecordIndex}
+              onChange={(e) => setEditRecordIndex(parseInt(e.target.value))}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Имя"
+              name="name"
+              value={editFormData.name || ''}
+              onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Email"
+              name="email"
+              value={editFormData.email || ''}
+              onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              label="Сообщение"
+              name="message"
+              value={editFormData.message || ''}
+              onChange={(e) => setEditFormData({ ...editFormData, message: e.target.value })}
+              sx={{ mb: 2 }}
+            />
+            <Button variant="contained" onClick={() => handleUpdateRecord(editRecordIndex, editFormData, setEditRecordIndex, setEditFormData, tableKey, setTableKey, setReloadData)}>
+              Обновить
+            </Button>
+          </Box>
+      )}
+    </Box>
+  );
 };
 
-//CREATE hook (post new user to api)
-function useCreateUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (user) => {
-      //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve();
-    },
-    //client side optimistic update
-    onMutate: (newUserInfo) => {
-      queryClient.setQueryData(['users'], (prevUsers) => [
-        ...prevUsers,
-        {
-          ...newUserInfo,
-          id: (Math.random() + 1).toString(36).substring(7),
-        },
-      ]);
-    },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
-  });
-}
-
-//READ hook (get users from api)
-function useGetUsers() {
-  return useQuery({
-    queryKey: ['users'],
-    queryFn: async () => {
-      //send api request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve(fakeData);
-    },
-    refetchOnWindowFocus: false,
-  });
-}
-
-//UPDATE hook (put user in api)
-function useUpdateUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (user) => {
-      //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve();
-    },
-    //client side optimistic update
-    onMutate: (newUserInfo) => {
-      queryClient.setQueryData(['users'], (prevUsers) =>
-        prevUsers?.map((prevUser) =>
-          prevUser.id === newUserInfo.id ? newUserInfo : prevUser,
-        ),
-      );
-    },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
-  });
-}
-
-//DELETE hook (delete user in api)
-function useDeleteUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (userId) => {
-      //send api update request here
-      await new Promise((resolve) => setTimeout(resolve, 1000)); //fake api call
-      return Promise.resolve();
-    },
-    //client side optimistic update
-    onMutate: (userId) => {
-      queryClient.setQueryData(['users'], (prevUsers) =>
-        prevUsers?.filter((user) => user.id !== userId),
-      );
-    },
-    // onSettled: () => queryClient.invalidateQueries({ queryKey: ['users'] }), //refetch users after mutation, disabled for demo
-  });
-}
-
-const queryClient = new QueryClient();
-
-const TableComponentWithProviders = () => (
-  //Put this with your other react-query providers near root of your app
-  <QueryClientProvider client={queryClient}>
-    <TableComponent />
-  </QueryClientProvider>
-);
-
-export default TableComponentWithProviders;
-
-const validateRequired = (value) => !!value.length;
-const validateEmail = (email) =>
-  !!email.length &&
-  email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
-
-function validateUser(user) {
-  return {
-    firstName: !validateRequired(user.firstName)
-      ? 'First Name is Required'
-      : '',
-    lastName: !validateRequired(user.lastName) ? 'Last Name is Required' : '',
-    email: !validateEmail(user.email) ? 'Incorrect Email Format' : '',
-  };
-}
+export default TableComponent;

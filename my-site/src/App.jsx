@@ -8,7 +8,8 @@ import Footer from './components/Footer';
 import StateAndEffect from './components/labs/StateAndEffect';
 import ReduxCounter from './components/labs/ReduxCounter/ReduxCounter';
 import FeedbackForm from './components/labs/FormFormik/FormFormik';
-import TableComponentWithProviders from './components/labs/MyReactTable/TableComponent'
+import TableComponentFull from './components/labs/MyReactTable/TableComponent';
+import Req from './components/labs/Req';
 
 function App() {
   return (
@@ -21,7 +22,8 @@ function App() {
         <Route path='/StateAndEffect' element={<StateAndEffect />} />
         <Route path='/ReduxCounter' element={<ReduxCounter />} /> 
         <Route path='/Formik' element={<FeedbackForm />} />
-        <Route path='/ReactTable' element={<TableComponentWithProviders />} />     
+        <Route path='/ReactTable' element={<TableComponentFull />} />
+        <Route path='/Req' element={<Req />} />        
       </Routes>
       <Footer />
     </>

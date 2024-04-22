@@ -15,7 +15,7 @@ function SideMenu({ toggleDrawer }) {
     return (
       <Box sx={{ width: 250,  marginTop: '64px'}} role="presentation">
         <List>
-          {['StateAndEffect', 'ReduxCounter', 'Formik', 'ReactTable'].map((text, index) => (
+          {['StateAndEffect', 'ReduxCounter', 'Formik', 'ReactTable', 'Req'].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton component={Link} to={'/' + text} onClick={handleCloseDrawer}>
                 <ListItemText primary={text} />
