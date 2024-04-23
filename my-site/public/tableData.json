@@ -1,28 +1,13 @@
 [
   {
-    "name": "Тимур Кучин",
-    "email": "asdasdas@asdasd",
-    "message": "asdasfasfasfasfasfasf"
-  },
-  {
-    "name": "Ella Martinez",
-    "email": "ella.martinez@example.com",
-    "message": "Donec rutrum congue leo eget malesuada. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus..."
-  },
-  {
     "name": "Noah Garcia",
     "email": "noah.garcia@example.com",
     "message": "Curabitur aliquet quam id dui posuere blandit. Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem..."
   },
   {
-    "name": "Ava Lopez",
-    "email": "ava.lopez@example.com",
-    "message": "Praesent sapien massa, convallis a pellentesque nec, egestas non nisi..."
-  },
-  {
-    "name": "Mia Perez",
-    "email": "mia.perez@example.com",
-    "message": "Nulla porttitor accumsan tincidunt. Nulla quis lorem ut libero malesuada feugiat..."
+    "name": "skjhsdgfsjkhgkshdjgks",
+    "email": "sdgfsjkdghkjsd@sjdhfkjsdfks.tu",
+    "message": "gdslkjgfkldjglkdjflgkjdflkgjdlkfg"
   },
   {
     "name": "Lucas Harris",
@@ -33,11 +18,6 @@
     "name": "Zoe King",
     "email": "zoe.king@example.com",
     "message": "Curabitur aliquet quam id dui posuere blandit. Proin eget tortor risus..."
-  },
-  {
-    "name": "Benjamin Clark",
-    "email": "benjamin.clark@example.com",
-    "message": "Curabitur aliquet quam id dui posuere blandit. Nulla porttitor accumsan tincidunt..."
   },
   {
     "name": "Lily Rodriguez",
@@ -155,18 +135,8 @@
     "message": "Donec sollicitudin molestie malesuada. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus..."
   },
   {
-    "name": "sdfsdfsdf",
-    "email": "kuchin.timur@bk.ru",
-    "message": "asdasdasdasdasdsa"
-  },
-  {
     "name": "Nora Rodriguez",
     "email": "nora.rodriguez@example.com",
     "message": "Nulla porttitor accumsan tincidunt. Curabitur aliquet quam id dui posuere blandit..."
-  },
-  {
-    "name": "Тимур Кучин",
-    "email": "kuchin.timur@bk.ru",
-    "message": "asdasdasdasdasdsa"
   }
 ]
