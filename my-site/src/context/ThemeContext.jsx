@@ -1,4 +1,5 @@
-import React, { createContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { createContext, useEffect, useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { lightTheme, darkTheme } from '../themes/theme';
 
@@ -24,3 +25,7 @@ export default function CustomThemeProvider({ children }) {
         </ThemeContext.Provider>
     );
 }
+
+CustomThemeProvider.propTypes = {
+    children: PropTypes.node.isRequired
+  };

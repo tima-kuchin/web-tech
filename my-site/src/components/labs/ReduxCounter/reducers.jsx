@@ -2,7 +2,7 @@ const initialState = {
     count: 0
   };
   
-  const reducer = (state = initialState, action) => {
+  const myReducer = (state = initialState, action) => {
     switch (action.type) {
       case 'INCREMENT':
         return {
@@ -17,4 +17,4 @@ const initialState = {
     }
   };
   
-  export default reducer;
+  export default myReducer;

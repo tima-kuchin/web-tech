@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { MaterialReactTable, useMaterialReactTable } from 'material-react-table'; 
-import { Box, Button, TextField, Toolbar } from '@mui/material';
-import { useDeleteRecordMutation, useUpdateRecordMutation } from '../../../api/postsApi';
+import {
+  MaterialReactTable,
+  useMaterialReactTable
+} from 'material-react-table'; 
+import Toolbar from '@mui/material/Toolbar';
+import { Box, Button, TextField } from '@mui/material';
+
 
 const TableComponent = () => {
 
@@ -125,40 +129,59 @@ const TableComponent = () => {
     setDeleteFormTrue(false);
     setEditFormTrue(true);
   };
-
-  const [deleteRecord] = useDeleteRecordMutation();
-  const [updateRecord] = useUpdateRecordMutation();
   
-  const handleUpdateRecord = (index, newData, setEdit, setKey, reload) => {
-    updateRecord({index: index - 1, newData })
-      .unwrap()
+  const handleUpdateRecord = (index, newData, setIndex, setEdit, prevKey, setKey, reload) => {
+    return fetch(`http://localhost:5000/api/updateRecord/${index - 1}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Ошибка обновления записи');
+        }
+        return response.json();
+      })
       .then((data) => {
         console.log('Запись успешно обновлена:', data);
         setEdit({});
-        setKey((prevKey) => prevKey + 1);
+        setIndex('');
+        setKey(prevKey + 1);
         reload(true);
         alert('Обновление успешно');
+        return data;
       })
       .catch((error) => {
         console.error('Ошибка обновления записи:', error);
         throw error;
       });
   };
-  
-  const handleDeleteRecord = (recordIndexToDelete, setRecordIndexToDelete, setKey, reload) => {
-    deleteRecord(recordIndexToDelete - 1)
-      .unwrap()
-      .then((data) => {
-        console.log('Запись успешно удалена:', data);
-        setRecordIndexToDelete('');
-        setKey((prevKey) => prevKey + 1);
-        reload(true);
-        alert('Удаление успешно');
-      })
-      .catch((error) => {
-        console.error('Ошибка удаления записи:', error);
-      });
-    };
+
+  const handleDeleteRecord = (recordIndexToDelete, setRecordIndexToDelete, prevKey, setKey, reload) => {
+    fetch(`http://localhost:5000/api/deleteRecord/${recordIndexToDelete - 1}`, {
+      method: 'DELETE',
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error('Ошибка удаления записи');
+      }
+      return response.json();
+    })
+    .then((data) => {
+      console.log('Запись успешно удалена:', data);
+      setRecordIndexToDelete('');
+      setKey(prevKey + 1);
+      reload(true);
+      alert('Удаление успешно');
+      return data;
+    })
+    .catch((error) => {
+      console.error('Ошибка удаления записи:', error);
+    });
+  };
+
 
   return(
     <Box>
@@ -182,7 +205,7 @@ const TableComponent = () => {
           />
           <Button
             variant="contained"
-            onClick={() => handleDeleteRecord(recordIndexToDelete, setRecordIndexToDelete, setTableKey, setReloadData)}
+            onClick={() => handleDeleteRecord(recordIndexToDelete, setRecordIndexToDelete, tableKey, setTableKey, setReloadData)}
           >
             Удалить
           </Button>
@@ -219,7 +242,7 @@ const TableComponent = () => {
               onChange={(e) => setEditFormData({ ...editFormData, message: e.target.value })}
               sx={{ mb: 2 }}
             />
-            <Button variant="contained" onClick={() => handleUpdateRecord(editRecordIndex, editFormData, setEditFormData, setTableKey, setReloadData)}>
+            <Button variant="contained" onClick={() => handleUpdateRecord(editRecordIndex, editFormData, setEditRecordIndex, setEditFormData, tableKey, setTableKey, setReloadData)}>
               Обновить
             </Button>
           </Box>

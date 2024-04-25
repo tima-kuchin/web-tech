@@ -7,8 +7,6 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Toolbar from '@mui/material/Toolbar';
 
-import { useSaveFeedbackMutation } from '../../../api/postsApi';
-
 const validationSchema = yup.object({
   name: yup
     .string('Введите Ваше имя')
@@ -27,16 +25,26 @@ const validationSchema = yup.object({
 
 
 function FeedbackForm() {
-  const [saveFeedback] = useSaveFeedbackMutation();
 
   const handleSubmit = useCallback(async (values) => {
     try {
-      await saveFeedback(values).unwrap();
+      const response = await fetch('http://localhost:5000/api/saveFeedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Ошибка сохранения данных');
+      }
+      
       console.log('Данные успешно сохранены');
     } catch (error) {
       console.error('Ошибка сохранения данных:', error);
     }
-  }, [saveFeedback]);
+  }, []);
 
   const formik = useFormik({
     initialValues: {
